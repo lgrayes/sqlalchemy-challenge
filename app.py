@@ -1,3 +1,5 @@
+%matplotlib inline
+%matplotlib notebook
 from matplotlib import style
 style.use('fivethirtyeight')
 import matplotlib.pyplot as pyplot
@@ -58,7 +60,7 @@ def welcome():
 
 
 @app.route("/api/v1.0/precipitation")
-def names():
+def precipitation():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
@@ -76,20 +78,19 @@ def passengers():
 
     """Return a list of passenger data including the name, age, and sex of each passenger"""
     # Query all stations
-    all_stations = session.query(Station.station, Passenger.age, Passenger.sex).all()
+    all_stations = session.query(Station.station, Station.name).all()
 
     session.close()
 
     # Create a dictionary from the row data and append to a list of all_passengers
-    all_passengers = []
-    for name, age, sex in results:
-        passenger_dict = {}
-        passenger_dict["name"] = name
-        passenger_dict["age"] = age
-        passenger_dict["sex"] = sex
-        all_passengers.append(passenger_dict)
+    all_stations = []
+    for station, name in results:
+        station_dict = {}
+        station_dict["station"] = station 
+        station_dict["name"] = name
+        all_stations.append(station_dict)
 
-    return jsonify(all_passengers)
+    return jsonify(all_stations)
 
 @app.route("/api/v1.0/tobs")
 def passengers():
