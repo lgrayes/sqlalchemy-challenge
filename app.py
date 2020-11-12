@@ -9,7 +9,7 @@ import datetime as dt
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, func, inspect cast, Date 
+from sqlalchemy import create_engine, func, inspect, cast, Date 
 from datetime import date 
 
 from flask import Flask, jsonify
@@ -18,7 +18,7 @@ from flask import Flask, jsonify
 #################################################
 # Database Setup
 #################################################
-engine = create_engine("sqlite:///./Resources/hawaii.sqlite")
+engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
 connection = engine.connect 
 
@@ -57,31 +57,26 @@ def welcome():
     )
 
 
-@app.route("/api/v1.0/names")
+@app.route("/api/v1.0/precipitation")
 def names():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    """Return a list of all passenger names"""
-    # Query all passengers
-    results = session.query(Passenger.name).all()
+    df2 = pd.read_sql("SELECT prcp, date FROM  measurement")
+    prcp_dict_list = df2.set_index('date').T.to_dict('records')
+    prcp_dict = prcp_dict_list[0]
 
-    session.close()
-
-    # Convert list of tuples into normal list
-    all_names = list(np.ravel(results))
-
-    return jsonify(all_names)
+    return jsonify(prcp_dict)
 
 
-@app.route("/api/v1.0/passengers")
+@app.route("/api/v1.0/stations")
 def passengers():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
     """Return a list of passenger data including the name, age, and sex of each passenger"""
-    # Query all passengers
-    results = session.query(Passenger.name, Passenger.age, Passenger.sex).all()
+    # Query all stations
+    all_stations = session.query(Station.station, Passenger.age, Passenger.sex).all()
 
     session.close()
 
@@ -96,6 +91,27 @@ def passengers():
 
     return jsonify(all_passengers)
 
+@app.route("/api/v1.0/tobs")
+def passengers():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    """Return a list of passenger data including the name, age, and sex of each passenger"""
+    # Query all stations
+    all_stations = session.query(Station.station, Passenger.age, Passenger.sex).all()
+
+    session.close()
+
+    # Create a dictionary from the row data and append to a list of all_passengers
+    all_passengers = []
+    for name, age, sex in results:
+        passenger_dict = {}
+        passenger_dict["name"] = name
+        passenger_dict["age"] = age
+        passenger_dict["sex"] = sex
+        all_passengers.append(passenger_dict)
+
+    return jsonify(all_passengers)
 
 if __name__ == '__main__':
     app.run(debug=True)
