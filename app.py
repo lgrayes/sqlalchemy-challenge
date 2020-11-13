@@ -58,10 +58,12 @@ def precipitation():
     # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    df2 = pd.read_sql("SELECT date, prcp FROM  measurement")
-    prcp = df2.set_index('date').T.to_dict('records')
-    prcp_dict = prcp[0]
+    results = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date>='2016-08-23')
 
+    session.close()
+
+    all_prcp = list(np.ravel(results))
+    
     return jsonify(prcp_dict)
 
 
